@@ -93,7 +93,7 @@ class FinalColorTracker(Node):
                         # 각속도 제어 (좌우 회전)
                         error_x = (width // 2) - center_x
                         #twist.linear.x = 0.1  # 전진 속도
-                        twist.linearx = 0.15
+                        twist.linear.x = 0.15
                         twist.angular.z = error_x * self.kp_angular
                         #twist.angular.z = error_x * self.kp_angular
                         
