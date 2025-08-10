@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-import rclpy
+import  rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
@@ -24,8 +23,11 @@ class FinalColorTracker(Node):
         self.upper_red2 = np.array([180, 255, 255])
         
         # PID 제어 변수
-        self.min_area = 800
-        self.kp_angular = 0.003
+        #self.min_area = 800
+        self.min_area = 1000 #더 작은 물체도 추적
+        #더 부드러운 회전(기본 : 0.003)
+        #self.kp_angular = 0.003
+        self.kp_angular = 0.002
         self.format_logged = False
         
         self.get_logger().info('🔴 Final Color Tracker 시작!')
@@ -90,19 +92,24 @@ class FinalColorTracker(Node):
                         
                         # 각속도 제어 (좌우 회전)
                         error_x = (width // 2) - center_x
-                        twist.linear.x = 0.1  # 전진 속도
+                        #twist.linear.x = 0.1  # 전진 속도
+                        twist.linearx = 0.15
                         twist.angular.z = error_x * self.kp_angular
+                        #twist.angular.z = error_x * self.kp_angular
                         
                         # 각속도 제한
                         if area < 3000:
-                            twist.linear.x = 0.15
+                            #twist.linear.x = 0.15
+                            twist.linear.x = 0.1 #더 느린 전진(기본: 0.15)
                         elif area > 12000:
                             twist.linear.x = -0.1
                         else:
                             twist.linear.x = 0.0
                         
                         # 각속도 범위 제한
+                        #twist.angular.z = max(-0.5, min(0.5, twist.angular.z))
                         twist.angular.z = max(-0.5, min(0.5, twist.angular.z))
+
                         
                         self.get_logger().info(f'🎯 추적 중: 좌표=({center_x}, {center_y}), 영역={int(area)}')
                 else:
